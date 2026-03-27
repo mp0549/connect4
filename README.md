@@ -3,7 +3,7 @@
 > **STATUS:** OPERATIONAL
 > **CLASSIFICATION:** UNCLASSIFIED // FOR PORTFOLIO USE ONLY
 > A data-dense Connect 4 interface featuring a full Minimax AI and live decision-tree visualization.
-> [→ INITIATE EXPERIMENT (Live Demo)](https://mp0549.github.io/lab/)
+> [→ INITIATE EXPERIMENT (Live Demo)]([https://mp0549.github.io/lab/](https://mp0549.github.io/connect4/))
 
 ---
 
