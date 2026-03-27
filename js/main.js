@@ -171,6 +171,7 @@ function startGame() {
   // ── Sync the visualizer ──
   Visualizer.resetStats();
   Visualizer.clearLog();
+  TREE_CANVAS.clearTree();
   Visualizer.logGameStart();
 }
 
@@ -252,7 +253,7 @@ function handleColumnClick(col) {
 
     // Inner zero delay — lets "EVALUATING..." paint before Minimax blocks
     setTimeout(() => {
-      const { column, stats } = AI_ENGINE.getBestMove(board, currentDepth);
+      const { column, stats, columnScores, principalVariation } = AI_ENGINE.getBestMove(board, currentDepth);
 
       // Push the stat readouts and the four-line analysis log
       Visualizer.updateStats({
@@ -262,6 +263,9 @@ function handleColumnClick(col) {
         score:  stats.score,
       });
       Visualizer.logAIDecision(stats, column);
+
+      // Render the decision tree canvas (canvas.js)
+      TREE_CANVAS.renderTree({ columnScores, principalVariation, chosenCol: column });
 
       executeAIMove(column);
     }, 0);

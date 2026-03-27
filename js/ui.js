@@ -127,6 +127,26 @@ const UI = (() => {
         // Cache the reference so renderBoard() can update it without
         // touching the DOM query API on every frame
         cellElements[row][col] = cell;
+
+        // ── Cell-level interaction ────────────────────────────────────
+        // Hovering or clicking any cell in a column behaves identically to
+        // hovering or clicking the column indicator button above the board.
+
+        // Highlight the entire column and show the ▼ caret on the button
+        cell.addEventListener('mouseenter', () => {
+          _highlightColumn(col, true);
+          colButtons[col].classList.add('col-indicator--hover');
+        });
+        cell.addEventListener('mouseleave', () => {
+          _highlightColumn(col, false);
+          colButtons[col].classList.remove('col-indicator--hover');
+        });
+
+        // Forward click to game logic — only fires when it's the player's turn
+        // (colButtons[col].disabled is true during AI turn / game over)
+        cell.addEventListener('click', () => {
+          if (!colButtons[col].disabled && onColumnClick) onColumnClick(col);
+        });
       }
     }
   }

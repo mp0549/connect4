@@ -409,6 +409,85 @@ const AI_ENGINE = (() => {
 
 
   // ─────────────────────────────────────────────
+  // PRINCIPAL VARIATION TRACE
+  // ─────────────────────────────────────────────
+
+  /**
+   * After the main search picks bestCol, trace the predicted sequence of
+   * subsequent optimal moves — the "Principal Variation" (PV).
+   *
+   * Called with the board AFTER the AI has already played bestCol.
+   * Uses a shallow search (depth 2) so it runs almost instantly.
+   *
+   * NOTE: This increments the shared nodesEvaluated / branchesPruned counters.
+   * The caller is responsible for saving and restoring those counters so the
+   * PV trace doesn't pollute the displayed stats.
+   *
+   * @param {number[][]} board      Board state after AI's chosen move
+   * @param {number}     maxMoves   Maximum subsequent moves to predict
+   * @param {number}     mainDepth  The original search depth (used to scale pvDepth)
+   * @returns {number[]}            Array of column indices, alternating PLY / AI
+   */
+  function tracePrincipalVariation(board, maxMoves, mainDepth) {
+    const pv = [];
+
+    // If the position is already terminal, there's nothing to trace.
+    if (GameState.checkWin(board, GameState.AI) || GameState.isBoardFull(board)) {
+      return pv;
+    }
+
+    let currentBoard = board;
+    let isPlayerTurn = true; // player responds to AI's bestCol move first
+
+    for (let i = 0; i < maxMoves; i++) {
+      const player    = isPlayerTurn ? GameState.PLAYER : GameState.AI;
+      const validCols = COLUMN_ORDER.filter(col => GameState.isValidMove(currentBoard, col));
+      if (validCols.length === 0) break;
+
+      // Shallow search depth — cap at 2 to keep PV trace instant.
+      // For very low difficulty settings, clamp to at least 0 (pure heuristic).
+      const pvDepth = Math.min(2, Math.max(0, mainDepth - 3));
+
+      // Player minimizes; AI maximizes.
+      let bestPVScore = isPlayerTurn ? Infinity : -Infinity;
+      let bestPVCol   = validCols[0];
+
+      for (const col of validCols) {
+        const result = GameState.dropPiece(currentBoard, col, player);
+
+        // Immediate win — take it without searching deeper.
+        if (GameState.checkWin(result.board, player)) {
+          bestPVCol   = col;
+          bestPVScore = isPlayerTurn ? SCORE_LOSS : SCORE_WIN;
+          break;
+        }
+
+        // After `player` moves, the opponent's turn becomes `isMaximizing`:
+        //   player moved  → AI goes next  → isMaximizing = true  = isPlayerTurn
+        //   AI moved      → player goes   → isMaximizing = false = isPlayerTurn
+        const score = pvDepth > 0
+          ? minimax(result.board, pvDepth - 1, -Infinity, Infinity, isPlayerTurn)
+          : evaluateBoard(result.board);
+
+        if (isPlayerTurn ? score < bestPVScore : score > bestPVScore) {
+          bestPVScore = score;
+          bestPVCol   = col;
+        }
+      }
+
+      pv.push(bestPVCol);
+      const pvResult = GameState.dropPiece(currentBoard, bestPVCol, player);
+      currentBoard   = pvResult.board;
+
+      if (GameState.checkWin(currentBoard, player) || GameState.isBoardFull(currentBoard)) break;
+      isPlayerTurn = !isPlayerTurn;
+    }
+
+    return pv;
+  }
+
+
+  // ─────────────────────────────────────────────
   // PUBLIC API
   // ─────────────────────────────────────────────
 
@@ -431,6 +510,8 @@ const AI_ENGINE = (() => {
    * @param {number[][]} board  The current game board (NOT mutated)
    * @returns {{
    *   column: number,
+   *   columnScores: Array<{col:number, valid:boolean, score:number|null}>,
+   *   principalVariation: number[],
    *   stats: {
    *     nodesEvaluated: number,
    *     branchesPruned: number,
@@ -450,6 +531,14 @@ const AI_ENGINE = (() => {
     // This avoids `bestCol` ever being undefined if the board is nearly full.
     let bestCol = COLUMN_ORDER.find(col => GameState.isValidMove(board, col));
 
+    // Build the full 7-column score map (null score = invalid / full column).
+    // Indexed by actual column number so the canvas renderer can address by col.
+    const allColumnScores = Array.from({ length: 7 }, (_, col) => ({
+      col,
+      valid: GameState.isValidMove(board, col),
+      score: null,
+    }));
+
     // Root-level move enumeration: try every valid column in center-first order
     const validCols = COLUMN_ORDER.filter(col => GameState.isValidMove(board, col));
 
@@ -467,6 +556,9 @@ const AI_ENGINE = (() => {
         false        // player's turn next (minimizing)
       );
 
+      // Store the score for this column in the map
+      allColumnScores[col].score = score;
+
       // Track the best column found so far
       if (score > bestScore) {
         bestScore = score;
@@ -474,9 +566,27 @@ const AI_ENGINE = (() => {
       }
     }
 
-    // Return the chosen column AND the stats for the visualizer panel
+    // ── Trace the Principal Variation ─────────────────────────────────────
+    //
+    // After picking bestCol, we follow the predicted optimal sequence a few
+    // moves deeper. This doesn't affect the AI's choice — it's purely for
+    // the canvas visualizer. We save and restore the counters so the PV
+    // trace doesn't inflate the displayed stats.
+
+    const savedNodes  = nodesEvaluated;
+    const savedPruned = branchesPruned;
+
+    const chosenResult      = GameState.dropPiece(board, bestCol, GameState.AI);
+    const principalVariation = tracePrincipalVariation(chosenResult.board, 3, depth);
+
+    nodesEvaluated = savedNodes;   // restore — PV trace is invisible to stats
+    branchesPruned = savedPruned;
+
+    // Return the chosen column, per-column scores, PV, and the stats
     return {
       column: bestCol,
+      columnScores: allColumnScores,
+      principalVariation,
       stats: {
         nodesEvaluated,
         branchesPruned,

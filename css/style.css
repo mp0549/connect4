@@ -257,8 +257,7 @@ html, body {
 .col-indicators {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  width: 100%;
-  max-width: 430px;
+  width: 90%;
 }
 
 .col-indicator {
@@ -282,11 +281,13 @@ html, body {
 }
 
 .col-indicator:hover::after,
-.col-indicator:focus-visible::after {
+.col-indicator:focus-visible::after,
+.col-indicator--hover::after {
   color: #1a1a1a;
 }
 
-.col-indicator:hover {
+.col-indicator:hover,
+.col-indicator--hover {
   border-bottom-color: #1a1a1a;
 }
 
@@ -314,8 +315,7 @@ html, body {
   grid-template-rows: repeat(6, 1fr);
   /* Outer edge matches the panel's black border language */
   border: 1px solid #1a1a1a;
-  width: 100%;
-  max-width: 430px;
+  width: 90%;
   /* #fafafa bleeds through as the cell-gap "lines" */
   background: #e8e8e8;
   gap: 1px;
@@ -328,6 +328,7 @@ html, body {
   align-items: center;
   justify-content: center;
   padding: 7px;
+  cursor: pointer;
   /* No transition needed — the .piece inside animates */
 }
 
@@ -440,8 +441,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  max-width: 430px;
+  width: 90%;
 }
 
 .lab-legend {
@@ -665,4 +665,31 @@ html, body {
 .lab-footer {
   padding: 0.45rem 1rem;
   text-align: center;
+}
+
+
+/* ═══════════════════════════════════════════════
+   13. PHASE 5 — DECISION TREE CANVAS
+   Full-width strip below the main two-column area.
+   ═══════════════════════════════════════════════ */
+
+.vis-tree-container {
+  background: transparent;
+}
+
+/* Header row mirrors the visualizer sub-header pattern */
+.vis-tree-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 1rem;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+/* Canvas fills the full panel width; height is set by JS (currently 400px).
+   Background is transparent so the site's CSS grid pattern shows through. */
+#ai-tree-canvas {
+  display: block;
+  width: 100%;
+  background: transparent;
 }

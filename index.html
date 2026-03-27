@@ -156,6 +156,22 @@
       </div><!-- /.lab-main -->
 
       <!-- ══════════════════════════════════════
+           PHASE 5 — A.I. DECISION TREE CANVAS
+           Rendered below the board/visualizer pair
+           so it doesn't disturb the existing layout.
+           Populated by Visualizer.renderTree() after
+           each AI move; cleared on game reset.
+           ══════════════════════════════════════ -->
+      <div class="lab-rule"></div>
+      <div class="vis-tree-container">
+        <div class="vis-tree-header">
+          <span class="lab-label">A.I. DECISION TREE</span>
+          <span class="vis-badge">PHASE 5 / EXPERIMENTAL</span>
+        </div>
+        <canvas id="ai-tree-canvas"></canvas>
+      </div>
+
+      <!-- ══════════════════════════════════════
            FOOTER
            ══════════════════════════════════════ -->
       <div class="lab-rule"></div>
@@ -175,6 +191,7 @@
   -->
   <script src="js/gameState.js"></script>
   <script src="js/visualizer.js"></script>
+  <script src="js/canvas.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/ai.js"></script>
   <script src="js/main.js"></script>

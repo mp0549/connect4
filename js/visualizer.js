@@ -1,14 +1,10 @@
 /**
- * visualizer.js — Algorithm Visualizer UI module
- * ────────────────────────────────────────────────
+ * visualizer.js — Terminal Panel Module
+ * ──────────────────────────────────────
  * Owns the right-hand panel: the four stat readouts and the scrollable
- * event log. In Phase 1 it acts purely as a game event logger.
+ * event log. Handles all text-based visualization (log entries, stat boxes).
  *
- * Phase 2 will expand this module significantly:
- *   - updateStats() will receive live data from the Minimax algorithm
- *     (nodes visited, depth searched, branches pruned, best score found).
- *   - A new renderTree() function will draw the live decision tree
- *     beneath the log using an SVG or canvas element.
+ * Canvas / decision-tree rendering lives in canvas.js (TREE_CANVAS).
  *
  * This module reads DOM nodes on load and caches them. It does NOT
  * import from gameState.js — it only receives plain values as arguments.
