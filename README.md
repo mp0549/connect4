@@ -78,3 +78,9 @@ connect4/
     ├── visualizer.js      — Right-panel telemetry logs and stat readouts (VISUALIZER)
     ├── ui.js              — DOM board rendering and event listeners (UI)
     └── main.js            — Primary orchestrator; owns game state and loop
+```
+
+## TECH STACK
+* Core: Vanilla JavaScript (ES2020) — No frameworks, purely algorithmic.
+* Rendering: HTML5 Canvas API (Decision Tree) & CSS Grid (Main Board).
+* Deployment: Static site hosted via GitHub Pages.
