@@ -253,7 +253,7 @@ function handleColumnClick(col) {
 
     // Inner zero delay — lets "EVALUATING..." paint before Minimax blocks
     setTimeout(() => {
-      const { column, stats, columnScores, principalVariation } = AI_ENGINE.getBestMove(board, currentDepth);
+      const { column, stats, rootBoard, columnScores, principalVariation } = AI_ENGINE.getBestMove(board, currentDepth);
 
       // Push the stat readouts and the four-line analysis log
       Visualizer.updateStats({
@@ -265,7 +265,7 @@ function handleColumnClick(col) {
       Visualizer.logAIDecision(stats, column);
 
       // Render the decision tree canvas (canvas.js)
-      TREE_CANVAS.renderTree({ columnScores, principalVariation, chosenCol: column });
+      TREE_CANVAS.renderTree({ rootBoard, columnScores, principalVariation, chosenCol: column });
 
       executeAIMove(column);
     }, 0);
