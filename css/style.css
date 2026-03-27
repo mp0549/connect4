@@ -14,6 +14,7 @@
      9. Visualizer section — header & stats
     10. Visualizer section — event log
     11. Footer
+    12. Visualizer section — difficulty controls
 ═══════════════════════════════════════════════════════════════════ */
 
 
@@ -160,6 +161,13 @@ html, body {
 }
 
 .lab-btn:hover {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+/* Persistent "selected" state — same as hover but doesn't require hover.
+   Applied to whichever difficulty preset is currently active. */
+.lab-btn--active {
   background: #1a1a1a;
   color: #fff;
 }
@@ -578,10 +586,12 @@ html, body {
 }
 
 /* Color variants per event type */
-.log-entry--player .log-message { color: #1a1a1a; font-weight: 700; }
-.log-entry--ai     .log-message { color: #b91c1c; font-weight: 700; }
+.log-entry--player   .log-message { color: #1a1a1a; font-weight: 700; }
+.log-entry--ai       .log-message { color: #b91c1c; font-weight: 700; }
 /* PHASE 2: change to #ff0000 when re-enabling chemical pour */
-.log-entry--system .log-message { color: #888;    font-style: italic; }
+.log-entry--system   .log-message { color: #888;    font-style: italic; }
+/* AI diagnostic readout lines — non-italic, slightly indented feel */
+.log-entry--analysis .log-message { color: #555; letter-spacing: 0.06em; }
 .log-entry--win    .log-message {
   color: #1a1a1a;
   font-weight: 700;
@@ -593,6 +603,64 @@ html, body {
 /* ═══════════════════════════════════════════════
    11. FOOTER
    ═══════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════
+   12. VISUALIZER — DIFFICULTY CONTROLS
+   ═══════════════════════════════════════════════ */
+
+/* Row: DIFFICULTY label + EASY / HARD / ADVANCED buttons */
+.vis-difficulty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 1rem;
+}
+
+.vis-difficulty-btns {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+/* The ADVANCED toggle is visually separated from the preset buttons
+   by a left margin and rendered smaller + in a muted color to signal
+   it's a different kind of control, not a difficulty level. */
+.vis-advanced-toggle {
+  margin-left: 0.6rem;
+  font-size: 0.52rem;
+  color: #999;
+  border-color: #bbb;
+  padding: 0.2rem 0.45rem;
+  letter-spacing: 0.1em;
+}
+
+.vis-advanced-toggle:hover {
+  background: #555;
+  border-color: #555;
+  color: #fff;
+}
+
+/* Advanced depth-slider row — hidden by default, shown via .open class */
+.vis-difficulty-advanced {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.45rem 1rem;
+  border-top: 1px solid #e8e8e8;
+  background: #fafafa;
+}
+
+.vis-difficulty-advanced.open {
+  display: flex;
+}
+
+/* Depth slider: monochrome, no browser chrome */
+#depth-slider {
+  flex: 1;
+  accent-color: #1a1a1a;
+  cursor: pointer;
+  height: 2px;
+}
 
 .lab-footer {
   padding: 0.45rem 1rem;

@@ -41,6 +41,14 @@
 let board = GameState.createBoard();
 
 /**
+ * Current Minimax search depth — controlled by the difficulty buttons and
+ * the advanced depth slider in the visualizer panel.
+ * Easy = 2, Hard = 6. Slider allows 1–10.
+ * Defaults to 6 (Hard).
+ */
+let currentDepth = 6;
+
+/**
  * Whose turn is it?
  * GameState.PLAYER (1) or GameState.AI (2).
  * The player always goes first.
@@ -84,6 +92,59 @@ function initGame() {
   document.getElementById('clear-log-btn').addEventListener('click', () => {
     Visualizer.clearLog();
     Visualizer.logSystem('LOG CLEARED BY OPERATOR.');
+  });
+
+  // ── Difficulty controls ────────────────────────────────────────────────
+  //
+  // Three UI elements control `currentDepth`:
+  //   • EASY button   → depth 2  (fast, beatable)
+  //   • MED button    → depth 4  (moderate challenge)
+  //   • HARD button   → depth 6  (strong, default)
+  //   • ADVANCED toggle → shows the depth slider (depth 1–10, manual)
+  //
+  // The active button gets .lab-btn--active (inverted colors) to show the
+  // current selection. Slider input clears all presets (none is "active").
+
+  const easyBtn      = document.getElementById('diff-easy');
+  const medBtn       = document.getElementById('diff-med');
+  const hardBtn      = document.getElementById('diff-hard');
+  const toggleBtn    = document.getElementById('diff-toggle');
+  const advPanel     = document.getElementById('diff-advanced');
+  const depthSlider  = document.getElementById('depth-slider');
+  const depthDisplay = document.getElementById('depth-display');
+
+  /** All three preset buttons — used to clear highlights in one pass. */
+  const presetBtns = [easyBtn, medBtn, hardBtn];
+
+  /**
+   * Sets the active depth and syncs the slider + display to match.
+   * Also clears and re-sets the active-button highlight.
+   *
+   * @param {number}          depth     The new search depth
+   * @param {HTMLElement|null} activeBtn The button to highlight, or null for slider mode
+   */
+  function applyDifficulty(depth, activeBtn) {
+    currentDepth = depth;
+    depthSlider.value        = depth;
+    depthDisplay.textContent = String(depth);
+    // Clear all preset highlights, then re-apply to the chosen one
+    presetBtns.forEach(btn => btn.classList.remove('lab-btn--active'));
+    if (activeBtn) activeBtn.classList.add('lab-btn--active');
+  }
+
+  easyBtn.addEventListener('click', () => applyDifficulty(2, easyBtn));
+  medBtn .addEventListener('click', () => applyDifficulty(4, medBtn));
+  hardBtn.addEventListener('click', () => applyDifficulty(6, hardBtn));
+
+  // Advanced toggle — shows/hides the slider row
+  toggleBtn.addEventListener('click', () => {
+    const isOpen = advPanel.classList.toggle('open');
+    toggleBtn.textContent = isOpen ? 'ADV ▴' : 'ADV ▾';
+  });
+
+  // Slider input — live update while dragging (no preset active in slider mode)
+  depthSlider.addEventListener('input', () => {
+    applyDifficulty(parseInt(depthSlider.value, 10), null);
   });
 
   // Start the first game immediately
@@ -178,31 +239,34 @@ function handleColumnClick(col) {
   UI.setInputEnabled(false);         // lock the board during AI turn
   UI.setStatus('A.I. PROCESSING...');
 
-  // ════════════════════════════════════════════════════════════════════
-  // PHASE 2 HOOK
-  // ────────────────────────────────────────────────────────────────────
-  // Replace the setTimeout below with a real AI call:
-  //
-  //   const chosenCol = AI.minimax(board, depth, -Infinity, +Infinity, true);
-  //   executeAIMove(chosenCol);
-  //
-  // The AI module (ai.js) will:
-  //   • Run Minimax with Alpha-Beta pruning
-  //   • Call Visualizer.updateStats() with live algorithm metrics
-  //   • Return the best column index
-  //
-  // Use setTimeout(fn, 0) or a Web Worker to keep the UI responsive
-  // while the algorithm runs.
-  // ════════════════════════════════════════════════════════════════════
+  // Outer delay — gives the browser a render cycle to show the player's
+  // drop animation and the "A.I. PROCESSING..." status before we block.
   setTimeout(() => {
-    // Placeholder: random valid column — gives the game a minimal
-    // opponent so Phase 1 is playable end-to-end for testing.
-    const validCols = GameState.getValidColumns(board);
-    if (validCols.length === 0) { endGame('draw', null); return; }
 
-    const randomCol = validCols[Math.floor(Math.random() * validCols.length)];
-    executeAIMove(randomCol);
-  }, 350); // short delay so the UI doesn't feel instant / jarring
+    // Log the opening analysis line BEFORE the heavy computation starts.
+    // Because JS is single-threaded, the DOM won't actually repaint until
+    // after this entire callback returns — but the inner setTimeout below
+    // creates a second task, giving the browser one more render cycle so
+    // "EVALUATING DEPTH N..." appears in the log while Minimax is running.
+    Visualizer.logAIThinking(currentDepth);
+
+    // Inner zero delay — lets "EVALUATING..." paint before Minimax blocks
+    setTimeout(() => {
+      const { column, stats } = AI_ENGINE.getBestMove(board, currentDepth);
+
+      // Push the stat readouts and the four-line analysis log
+      Visualizer.updateStats({
+        nodes:  stats.nodesEvaluated,
+        depth:  stats.depth,
+        pruned: stats.branchesPruned,
+        score:  stats.score,
+      });
+      Visualizer.logAIDecision(stats, column);
+
+      executeAIMove(column);
+    }, 0);
+
+  }, 50);
 }
 
 

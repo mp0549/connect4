@@ -439,7 +439,7 @@ const AI_ENGINE = (() => {
    *   }
    * }}
    */
-  function getBestMove(board) {
+  function getBestMove(board, depth = MAX_DEPTH) {
     // Reset per-search counters
     nodesEvaluated = 0;
     branchesPruned = 0;
@@ -461,10 +461,10 @@ const AI_ENGINE = (() => {
       // We pass -Infinity/+Infinity because nothing has been explored yet.
       const score = minimax(
         result.board,
-        MAX_DEPTH - 1,   // one ply already used by the root AI move above
+        depth - 1,   // one ply already used by the root AI move above
         -Infinity,
         Infinity,
-        false            // player's turn next (minimizing)
+        false        // player's turn next (minimizing)
       );
 
       // Track the best column found so far
@@ -480,7 +480,7 @@ const AI_ENGINE = (() => {
       stats: {
         nodesEvaluated,
         branchesPruned,
-        depth: MAX_DEPTH,
+        depth,          // the actual depth used for this search
         score: bestScore,
       },
     };

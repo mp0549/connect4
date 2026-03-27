@@ -91,8 +91,28 @@
 
           <!-- Sub-header -->
           <div class="vis-header">
-            <span class="lab-eyebrow">SUBSYSTEM — MIND READER v1.0</span>
-            <span class="vis-badge">PHASE 1 / STANDBY</span>
+            <span class="lab-eyebrow">SUBSYSTEM — MIND READER v3.4</span>
+            <span class="vis-badge">PHASE 2 / ACTIVE</span>
+          </div>
+
+          <div class="lab-rule"></div>
+
+          <!-- Difficulty controls: EASY / MED / HARD presets + ADVANCED slider -->
+          <div class="vis-difficulty">
+            <span class="lab-label">DIFFICULTY</span>
+            <div class="vis-difficulty-btns">
+              <button class="lab-btn" id="diff-easy">EASY</button>
+              <button class="lab-btn" id="diff-med">MED</button>
+              <button class="lab-btn lab-btn--active" id="diff-hard">HARD</button>
+              <button class="lab-btn vis-advanced-toggle" id="diff-toggle">ADV ▾</button>
+            </div>
+          </div>
+
+          <!-- Advanced depth slider — hidden until ADVANCED is toggled -->
+          <div class="vis-difficulty-advanced" id="diff-advanced">
+            <span class="lab-label">DEPTH</span>
+            <input type="range" id="depth-slider" min="1" max="10" value="6">
+            <span class="lab-label" id="depth-display">6</span>
           </div>
 
           <div class="lab-rule"></div>
@@ -156,6 +176,7 @@
   <script src="js/gameState.js"></script>
   <script src="js/visualizer.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/ai.js"></script>
   <script src="js/main.js"></script>
 
 </body>

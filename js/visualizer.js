@@ -128,6 +128,42 @@ const Visualizer = (() => {
   }
 
   /**
+   * Logs the opening line of the AI's analysis block — called BEFORE
+   * getBestMove() runs, so it appears in the log while the AI is thinking.
+   *
+   * @param {number} depth  The search depth being used this turn
+   */
+  function logAIThinking(depth) {
+    appendLog(`SYS: EVALUATING DEPTH ${depth}...`, 'analysis');
+  }
+
+  /**
+   * Logs the four diagnostic lines that follow the AI's decision.
+   * Called AFTER getBestMove() returns, with the real stats it produced.
+   *
+   * Format:
+   *   NODES CHECKED:   4,392
+   *   BRANCHES PRUNED: 1,840
+   *   OUTCOME SCORE:   +120
+   *   ACTION: POURING REAGENT IN TUBE 4
+   *
+   * @param {{ nodesEvaluated: number, branchesPruned: number, score: number }} stats
+   * @param {number} col  0-indexed column the AI chose
+   */
+  function logAIDecision(stats, col) {
+    // Format the score: show +/- for normal values, flag terminal states
+    let scoreStr;
+    if      (stats.score >=  999_000) scoreStr = '> WIN DETECTED';
+    else if (stats.score <= -999_000) scoreStr = '< LOSS PROJECTED';
+    else scoreStr = (stats.score > 0 ? '+' : '') + stats.score.toLocaleString();
+
+    appendLog(`NODES CHECKED:   ${stats.nodesEvaluated.toLocaleString()}`, 'analysis');
+    appendLog(`BRANCHES PRUNED: ${stats.branchesPruned.toLocaleString()}`, 'analysis');
+    appendLog(`OUTCOME SCORE:   ${scoreStr}`, 'analysis');
+    appendLog(`ACTION: POURING REAGENT IN TUBE ${col + 1}`, 'ai');
+  }
+
+  /**
    * Logs the terminal game result.
    *
    * @param {'player'|'ai'|'draw'} winner
@@ -173,7 +209,17 @@ const Visualizer = (() => {
     statNodes.textContent  = nodes  !== null ? nodes.toLocaleString()  : '—';
     statDepth.textContent  = depth  !== null ? String(depth)           : '—';
     statPruned.textContent = pruned !== null ? pruned.toLocaleString() : '—';
-    statScore.textContent  = score  !== null ? String(score)           : '—';
+
+    // Score: prefix + for positive, flag terminal win/loss values
+    if (score === null) {
+      statScore.textContent = '—';
+    } else if (score >=  999_000) {
+      statScore.textContent = 'WIN';
+    } else if (score <= -999_000) {
+      statScore.textContent = 'LOSS';
+    } else {
+      statScore.textContent = (score > 0 ? '+' : '') + score.toLocaleString();
+    }
   }
 
   /**
@@ -207,6 +253,8 @@ const Visualizer = (() => {
     logGameStart,
     logPlayerMove,
     logAIMove,
+    logAIThinking,
+    logAIDecision,
     logGameEnd,
     logSystem,
     updateStats,
