@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CONNECT 4 — THE LAB</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="grid-bg lab-page">
+    <div class="lab-panel">
+
+      <!-- ══════════════════════════════════════
+           HEADER
+           Uses exact .lab-header / .lab-title
+           pattern from the existing site.
+           ══════════════════════════════════════ -->
+      <header class="lab-header">
+        <a href="https://mp0549.github.io/lab/" class="lab-btn">← BACK</a>
+
+        <div class="lab-header-center">
+          <p class="lab-eyebrow">EXPERIMENT — ALGORITHMIC COGNITION</p>
+          <h1 class="lab-title">CONNECT 4</h1>
+        </div>
+
+        <button class="lab-help-btn" id="help-btn" title="How to play">?</button>
+      </header>
+
+      <div class="lab-rule"></div>
+
+      <!-- ══════════════════════════════════════
+           STATUS BAR
+           Live readout of game state. The text
+           content is driven entirely by main.js.
+           ══════════════════════════════════════ -->
+      <div class="lab-status-bar">
+        <span class="lab-label">SUBJECT</span>
+        <span class="lab-status-text" id="status-text">AWAITING INPUT...</span>
+        <span class="lab-label">TURN&nbsp;<span id="turn-count">0</span></span>
+      </div>
+
+      <div class="lab-rule"></div>
+
+      <!-- ══════════════════════════════════════
+           MAIN CONTENT AREA
+           Two-column: game board (left) |
+           algorithm visualizer (right).
+           Both sections are populated by JS.
+           ══════════════════════════════════════ -->
+      <div class="lab-main">
+
+        <!-- ─────────────────────────────────
+             LEFT: GAME BOARD SECTION
+             ───────────────────────────────── -->
+        <section class="game-section">
+
+          <!-- Seven invisible buttons above the board.
+               Hovering one highlights its column;
+               clicking one drops a piece. Built by UI.buildBoard(). -->
+          <div class="col-indicators" id="col-indicators"></div>
+
+          <!-- The 6×7 board grid. All 42 cells are injected by
+               UI.buildBoard() — each cell holds one .piece div. -->
+          <div class="board" id="board"></div>
+
+          <!-- Controls row: reset button + piece legend -->
+          <div class="game-controls">
+            <button class="lab-btn" id="reset-btn">↺ RESET</button>
+
+            <div class="lab-legend">
+              <div class="legend-item">
+                <div class="legend-piece player-piece"></div>
+                <span>PLAYER</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-piece ai-piece"></div>
+                <span>A.I.</span>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ─────────────────────────────────
+             RIGHT: ALGORITHM VISUALIZER
+             Phase 1 scaffold; wired up fully
+             in Phase 2 with Minimax data.
+             ───────────────────────────────── -->
+        <section class="visualizer-section">
+
+          <!-- Sub-header -->
+          <div class="vis-header">
+            <span class="lab-eyebrow">SUBSYSTEM — MIND READER v1.0</span>
+            <span class="vis-badge">PHASE 1 / STANDBY</span>
+          </div>
+
+          <div class="lab-rule"></div>
+
+          <!-- 2×2 grid of algorithm stat readouts.
+               Values are "—" in Phase 1; populated
+               by Visualizer.updateStats() in Phase 2. -->
+          <div class="vis-stats-grid">
+            <div class="vis-stat">
+              <div class="vis-stat-label">NODES EVALUATED</div>
+              <div class="vis-stat-value" id="stat-nodes">—</div>
+            </div>
+            <div class="vis-stat">
+              <div class="vis-stat-label">SEARCH DEPTH</div>
+              <div class="vis-stat-value" id="stat-depth">—</div>
+            </div>
+            <div class="vis-stat">
+              <div class="vis-stat-label">PRUNED BRANCHES</div>
+              <div class="vis-stat-value" id="stat-pruned">—</div>
+            </div>
+            <div class="vis-stat">
+              <div class="vis-stat-label">BEST SCORE</div>
+              <div class="vis-stat-value" id="stat-score">—</div>
+            </div>
+          </div>
+
+          <div class="lab-rule"></div>
+
+          <!-- Log header row -->
+          <div class="vis-log-header">
+            <span class="lab-label">GAME LOG</span>
+            <button class="lab-btn" id="clear-log-btn">CLEAR</button>
+          </div>
+
+          <!-- Scrollable event log. Entries are appended by
+               Visualizer.appendLog() on every move/event. -->
+          <div class="vis-log" id="vis-log"></div>
+
+        </section>
+
+      </div><!-- /.lab-main -->
+
+      <!-- ══════════════════════════════════════
+           FOOTER
+           ══════════════════════════════════════ -->
+      <div class="lab-rule"></div>
+      <div class="lab-footer">
+        <span class="lab-eyebrow">CLASSIFICATION: UNCLASSIFIED // FOR PORTFOLIO USE ONLY</span>
+      </div>
+
+    </div><!-- /.lab-panel -->
+  </div><!-- /.grid-bg -->
+
+  <!--
+    Scripts loaded in dependency order:
+      gameState.js  — pure logic (no DOM)
+      visualizer.js — log panel (reads DOM on load)
+      ui.js         — board renderer (reads DOM on load)
+      main.js       — orchestrator (calls the above three)
+  -->
+  <script src="js/gameState.js"></script>
+  <script src="js/visualizer.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+</html>

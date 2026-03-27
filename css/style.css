@@ -1,0 +1,600 @@
+/* ═══════════════════════════════════════════════════════════════════
+   CONNECT 4 — THE LAB
+   style.css
+
+   Section map:
+     1. Reset & base
+     2. Lab background   (copied verbatim from global CSS)
+     3. Lab structural UI (copied verbatim from global CSS)
+     4. Status bar
+     5. Main two-column layout
+     6. Game section — column indicators
+     7. Game section — board & pieces
+     8. Game section — controls & legend
+     9. Visualizer section — header & stats
+    10. Visualizer section — event log
+    11. Footer
+═══════════════════════════════════════════════════════════════════ */
+
+
+/* ═══════════════════════════════════════════════
+   1. RESET & BASE
+   ═══════════════════════════════════════════════ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: #fafafa;
+  /* monospace as the document default keeps inline fallback text on-theme */
+  font-family: 'Courier New', monospace;
+}
+
+
+/* ═══════════════════════════════════════════════
+   2. LAB BACKGROUND  (from global CSS — unchanged)
+   ═══════════════════════════════════════════════ */
+
+.grid-bg {
+  min-height: 100vh;
+  background-color: #fafafa;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px),
+    linear-gradient(rgba(0,0,0,0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.12) 1px, transparent 1px);
+  background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+  animation: grid-drift 120s linear infinite;
+  position: relative;
+}
+
+@keyframes grid-drift {
+  0%   { background-position: 0 0, 0 0, 0 0, 0 0; }
+  100% { background-position: 8px 8px, 12px 12px, 30px 30px, 45px 45px; }
+}
+
+/* Grain overlay */
+.grid-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(0,0,0,0.02) 1px, transparent 1px);
+  background-size: 3px 3px;
+  opacity: 0.18;
+  mix-blend-mode: multiply;
+}
+
+/* Scanline flicker */
+.grid-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px);
+  background-size: 100% 3px;
+  opacity: 0.03;
+  animation: scanline-flicker 10s steps(1, end) infinite;
+}
+
+@keyframes scanline-flicker {
+  0%   { opacity: 0.02; }
+  4%   { opacity: 0.04; }
+  6%   { opacity: 0.01; }
+  100% { opacity: 0.02; }
+}
+
+
+/* ═══════════════════════════════════════════════
+   3. LAB STRUCTURAL UI  (from global CSS — unchanged)
+   ═══════════════════════════════════════════════ */
+
+.lab-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3rem 1rem 5rem;
+}
+
+/* Widened to accommodate the side-by-side layout */
+.lab-panel {
+  background: #fff;
+  border: 1px solid #1a1a1a;
+  max-width: 1100px;
+  width: 100%;
+}
+
+.lab-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+}
+
+.lab-header-center { text-align: center; }
+
+.lab-eyebrow {
+  font-family: 'Courier New', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #999;
+  margin-bottom: 0.2rem;
+}
+
+.lab-title {
+  font-family: 'Times New Roman', serif;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+  line-height: 1;
+}
+
+.lab-rule {
+  width: 100%;
+  height: 1px;
+  background: #1a1a1a;
+}
+
+.lab-btn {
+  font-family: 'Courier New', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+  text-decoration: none;
+  border: 1px solid #1a1a1a;
+  padding: 0.3rem 0.6rem;
+  white-space: nowrap;
+  background: transparent;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+  display: inline-block;
+}
+
+.lab-btn:hover {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.lab-help-btn {
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  background: transparent;
+  border: 1px solid #1a1a1a;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.lab-help-btn:hover {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+
+/* ═══════════════════════════════════════════════
+   4. STATUS BAR
+   Sits between the header rule and the main area.
+   ═══════════════════════════════════════════════ */
+
+.lab-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 1rem;
+  background: #fafafa;
+}
+
+.lab-label {
+  font-family: 'Courier New', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #999;
+}
+
+.lab-status-text {
+  font-family: 'Courier New', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+
+/* ═══════════════════════════════════════════════
+   5. MAIN TWO-COLUMN LAYOUT
+   Left: game board  |  Right: visualizer
+   ═══════════════════════════════════════════════ */
+
+.lab-main {
+  display: grid;
+  /* Fixed 380px visualizer column; game board takes the rest */
+  grid-template-columns: 1fr 380px;
+  min-height: 520px;
+}
+
+
+/* ═══════════════════════════════════════════════
+   6. GAME SECTION — COLUMN INDICATORS
+   Row of 7 invisible buttons above the board.
+   Hovering one shows a ▼ caret; clicking drops a piece.
+   ═══════════════════════════════════════════════ */
+
+.game-section {
+  padding: 1.5rem;
+  border-right: 1px solid #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Container aligns to the board's max-width */
+.col-indicators {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  width: 100%;
+  max-width: 430px;
+}
+
+.col-indicator {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  padding: 0.35rem 0;
+  text-align: center;
+  transition: border-color 80ms ease;
+}
+
+/* The drop caret — hidden by default, shown on hover/focus */
+.col-indicator::after {
+  content: '▼';
+  display: block;
+  font-size: 0.55rem;
+  color: transparent;
+  transition: color 80ms ease;
+  line-height: 1;
+}
+
+.col-indicator:hover::after,
+.col-indicator:focus-visible::after {
+  color: #1a1a1a;
+}
+
+.col-indicator:hover {
+  border-bottom-color: #1a1a1a;
+}
+
+/* Disabled: no pointer, no caret */
+.col-indicator:disabled {
+  cursor: not-allowed;
+  border-bottom-color: transparent !important;
+}
+
+.col-indicator:disabled::after {
+  color: transparent !important;
+}
+
+
+/* ═══════════════════════════════════════════════
+   7. GAME SECTION — BOARD & PIECES
+   The 6×7 grid of cells. Each cell contains one
+   .piece div (the circle). Pieces are styled via
+   modifier classes applied by ui.js.
+   ═══════════════════════════════════════════════ */
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  /* Outer edge matches the panel's black border language */
+  border: 1px solid #1a1a1a;
+  width: 100%;
+  max-width: 430px;
+  /* #fafafa bleeds through as the cell-gap "lines" */
+  background: #e8e8e8;
+  gap: 1px;
+}
+
+.board-cell {
+  aspect-ratio: 1;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px;
+  /* No transition needed — the .piece inside animates */
+}
+
+/* Column hover: cells tint when the indicator above is hovered.
+   Class is toggled by UI.highlightColumn(). */
+.board-cell.col-hover {
+  background: #f4f4f4;
+}
+
+/* ── The circle inside each cell ── */
+.piece {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;       /* circles only — the rest of the UI is angular */
+  border: 1px solid #ddd;   /* empty state: faint ring */
+  background: transparent;
+  transition: background 100ms ease, border-color 100ms ease;
+}
+
+/* Player 1 (human): solid black */
+.piece--player {
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+}
+
+/* Player 2 (AI): dark clinical red */
+.piece--ai {
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+
+/* Winning cells: white inset ring drawn over the filled piece */
+.piece--win {
+  box-shadow: inset 0 0 0 3px rgba(255,255,255,0.75);
+}
+
+/* Drop animation: piece "lands" with a brief scale pop */
+@keyframes piece-drop {
+  0%   { transform: scale(0.45); opacity: 0.5; }
+  65%  { transform: scale(1.1); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+.piece--drop {
+  animation: piece-drop 180ms ease-out forwards;
+}
+
+/*
+  ── PHASE 2 CHEMICAL POUR (saved, not active) ──────────────────────────
+  To re-enable: delete the Phase 1 block above and uncomment this block.
+  Also uncomment the matching animateDrop() in ui.js.
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  border: 1px solid #1a1a1a;
+  width: 100%;
+  max-width: 430px;
+  column-gap: 1px;
+  row-gap: 0;
+  background: #1a1a1a;
+}
+
+.board-cell {
+  aspect-ratio: 1;
+  background: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.board-cell.col-hover {
+  background: #f5f5f5;
+}
+
+.piece {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  transform: scaleY(0);
+  transform-origin: bottom;
+}
+
+.piece--player {
+  background: #000000;
+  transform: scaleY(1);
+}
+
+.piece--ai {
+  background: #ff0000;
+  transform: scaleY(1);
+}
+
+.piece--win {
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline-offset: -5px;
+}
+
+.piece--fill {
+  transition: transform 280ms ease-in;
+}
+  ── END PHASE 2 CHEMICAL POUR ──────────────────────────────────────── */
+
+
+/* ═══════════════════════════════════════════════
+   8. GAME SECTION — CONTROLS & LEGEND
+   ═══════════════════════════════════════════════ */
+
+.game-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 430px;
+}
+
+.lab-legend {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.legend-piece {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-piece.player-piece { background: #1a1a1a; }
+.legend-piece.ai-piece     { background: #b91c1c; }
+/* PHASE 2: swap to { background: #000000 } and { background: #ff0000 }
+   and remove border-radius when re-enabling chemical pour */
+
+
+/* ═══════════════════════════════════════════════
+   9. VISUALIZER SECTION — HEADER & STATS
+   ═══════════════════════════════════════════════ */
+
+.visualizer-section {
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+}
+
+/* Sub-header row */
+.vis-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 1rem;
+}
+
+/* "PHASE 1 / STANDBY" badge */
+.vis-badge {
+  font-family: 'Courier New', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #aaa;
+  border: 1px solid #ccc;
+  padding: 0.15rem 0.45rem;
+}
+
+/* ── 2×2 stat grid ── */
+.vis-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #e8e8e8; /* gap color between cells */
+  gap: 1px;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.vis-stat {
+  padding: 0.75rem 1rem;
+  background: #fff;
+}
+
+.vis-stat-label {
+  font-family: 'Courier New', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #999;
+  margin-bottom: 0.35rem;
+}
+
+.vis-stat-value {
+  font-family: 'Courier New', monospace;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: 0.04em;
+}
+
+
+/* ═══════════════════════════════════════════════
+   10. VISUALIZER SECTION — EVENT LOG
+   ═══════════════════════════════════════════════ */
+
+/* Log sub-header */
+.vis-log-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 1rem;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+/* Scrollable log area */
+.vis-log {
+  flex: 1;
+  overflow-y: auto;
+  /* Limit height so the panel doesn't grow unbounded */
+  max-height: 360px;
+  padding: 0.25rem 0;
+}
+
+/* Individual log entry: two-column (timestamp | message) */
+.log-entry {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  gap: 0.5rem;
+  padding: 0.28rem 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  line-height: 1.5;
+}
+
+.log-entry:last-child { border-bottom: none; }
+
+.log-timestamp {
+  font-family: 'Courier New', monospace;
+  font-size: 0.6rem;
+  color: #bbb;
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+  padding-top: 0.05rem;
+}
+
+.log-message {
+  font-family: 'Courier New', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  color: #444;
+}
+
+/* Color variants per event type */
+.log-entry--player .log-message { color: #1a1a1a; font-weight: 700; }
+.log-entry--ai     .log-message { color: #b91c1c; font-weight: 700; }
+/* PHASE 2: change to #ff0000 when re-enabling chemical pour */
+.log-entry--system .log-message { color: #888;    font-style: italic; }
+.log-entry--win    .log-message {
+  color: #1a1a1a;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+
+/* ═══════════════════════════════════════════════
+   11. FOOTER
+   ═══════════════════════════════════════════════ */
+
+.lab-footer {
+  padding: 0.45rem 1rem;
+  text-align: center;
+}
