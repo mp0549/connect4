@@ -147,6 +147,24 @@ function initGame() {
     applyDifficulty(parseInt(depthSlider.value, 10), null);
   });
 
+  // ── Help overlay ──────────────────────────────────────────────────────
+  const helpOverlay  = document.getElementById('help-overlay');
+  const helpBtn      = document.getElementById('help-btn');
+  const closeHelpBtn = document.getElementById('close-help-btn');
+
+  function showHelp() { helpOverlay.classList.remove('hidden'); }
+  function hideHelp() {
+    helpOverlay.classList.add('hidden');
+    localStorage.setItem('helpSeen', '1');
+  }
+
+  helpBtn.addEventListener('click', showHelp);
+  closeHelpBtn.addEventListener('click', hideHelp);
+  helpOverlay.addEventListener('click', hideHelp); // backdrop click closes
+
+  // Show automatically on the very first visit; skip on return visits.
+  if (!localStorage.getItem('helpSeen')) showHelp();
+
   // Start the first game immediately
   startGame();
 }

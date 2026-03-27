@@ -182,6 +182,48 @@
     </div><!-- /.lab-panel -->
   </div><!-- /.grid-bg -->
 
+  <!-- ══════════════════════════════════════
+       HELP OVERLAY
+       Position: fixed — sits above everything.
+       Shown on first visit; toggled by the ? button.
+       ══════════════════════════════════════ -->
+  <div id="help-overlay" class="lab-overlay hidden">
+    <div class="lab-panel" onclick="event.stopPropagation()">
+      <p class="lab-eyebrow">EXPERIMENT BRIEFING</p>
+      <h2 class="lab-title">HOW TO PLAY</h2>
+      <div class="lab-rule"></div>
+
+      <div class="lab-help-body">
+        <p>Connect four of your assets horizontally, vertically, or diagonally to win. You operate the black pieces; the AI operates the red.</p>
+        <p>Unlike a standard simulation, this interface exposes the machine's internal cognition. As you play, monitor the surrounding panels to see exactly how the AI plans to defeat you.</p>
+
+        <div class="lab-help-metrics">
+          <p class="lab-help-metric-title">SYSTEM TELEMETRY</p>
+          <div class="lab-help-metric-row">
+            <span class="lab-help-metric-icon">[ N ]</span>
+            <span><strong>NODES EVALUATED</strong> — The total number of future board states the algorithm calculated this turn.</span>
+          </div>
+          <div class="lab-help-metric-row">
+            <span class="lab-help-metric-icon">[ X ]</span>
+            <span><strong>PRUNED BRANCHES</strong> — Inferior timelines instantly severed and discarded by the Alpha-Beta algorithm.</span>
+          </div>
+          <div class="lab-help-metric-row">
+            <span class="lab-help-metric-icon">[ / ]</span>
+            <span><strong>DECISION TREE</strong> — The lower canvas maps the AI's "foresight," showing exactly how it expects you to respond.</span>
+          </div>
+        </div>
+
+        <p class="lab-help-tip">Goal: Outsmart the Minimax algorithm. (Decrease the depth if you require a handicap).</p>
+      </div>
+
+      <div class="lab-rule" style="margin: 1.25rem 0 1rem;"></div>
+
+      <div class="lab-actions">
+        <button id="close-help-btn" class="lab-action-btn">GOT IT</button>
+      </div>
+    </div>
+  </div>
+
   <!--
     Scripts loaded in dependency order:
       gameState.js  — pure logic (no DOM)
@@ -200,3 +242,6 @@
 
 </body>
 </html>
+
+
+
